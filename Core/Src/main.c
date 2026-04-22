@@ -22,6 +22,7 @@
 #include "cordic.h"
 #include "dac.h"
 #include "dma.h"
+#include "stm32g4xx_hal_adc.h"
 #include "tim.h"
 #include "gpio.h"
 
@@ -261,6 +262,7 @@ void ANC_Control_Loop(uint16_t* pADC_Data, uint16_t* pDAC_Data, uint16_t length)
         int32_t input_q31 = (int32_t)((map_phase / M_PI) * 2147483648.0f);
         
         CORDIC->WDATA = input_q31; 
+        while (!(CORDIC->CSR & CORDIC_CSR_RRDY));   // 等待 RRDY 置位
         int32_t cos_q31 = (int32_t)CORDIC->RDATA; 
         int32_t sin_q31 = (int32_t)CORDIC->RDATA;
         
@@ -273,7 +275,10 @@ void ANC_Control_Loop(uint16_t* pADC_Data, uint16_t* pDAC_Data, uint16_t length)
         // 合成发射信号 B 并填充 DAC 缓冲区
         float dac_f = anc.I_out * local_cos + anc.Q_out * local_sin;
         int32_t dac_out = (int32_t)(dac_f) + DAC_MID_VALUE;
-        pDAC_Data[i] = (uint16_t)__SSAT(dac_out, 12); // 索引改为 i
+        // 正确：dac_out 已加了 DAC_MID_VALUE 偏置，clamp 到无符号 [0, 4095]
+        if (dac_out < 0)    dac_out = 0;
+        if (dac_out > 4095) dac_out = 4095;
+        pDAC_Data[i] = (uint16_t)dac_out;
         
         // 更新相位
         anc.phase += anc.phase_step;
