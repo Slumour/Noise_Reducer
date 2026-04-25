@@ -53,10 +53,10 @@
  * 闭环 PI-IQ 控制器参数：
  * 自适应追踪未知 LTI 的衰减与相移
  */
-#define ANC_KP              1.0f
-#define ANC_KI              0.05f
-#define ANC_OUT_LIMIT       2040.0f     // DAC码值限幅，防止削顶失真
-#define ANC_INT_LIMIT       (ANC_OUT_LIMIT / ANC_KI)
+#define ANC_KP          0.005f
+#define ANC_KI          0.0002f
+#define ANC_OUT_LIMIT   500.0f      // 对应约 ±0.4V，覆盖1Vpp输入即可
+#define ANC_INT_LIMIT   (ANC_OUT_LIMIT / ANC_KI)
 
 /*
  * STM32G474 TIM5 时钟频率 (Hz)，用于硬件测频换算
@@ -231,7 +231,7 @@ static void ANC_Control_Loop(uint16_t *pADC_Data, uint16_t *pDAC_Data, uint16_t 
     for (uint16_t i = 0; i < length; i++)
     {
         /* --- 1. 提取物理叠加误差 --- */
-        float error_signal = (float)pADC_Data[i] - ADC_MID_VALUE;
+        float error_signal = (float)pADC_Data[i] - ADC_MID_VALUE;;
 
         /* --- 2. CORDIC 极速正余弦解算 ---
          *
