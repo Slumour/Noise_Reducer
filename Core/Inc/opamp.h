@@ -36,12 +36,15 @@ extern OPAMP_HandleTypeDef hopamp2;
 
 extern OPAMP_HandleTypeDef hopamp3;
 
+extern OPAMP_HandleTypeDef hopamp4;
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
 void MX_OPAMP2_Init(void);
 void MX_OPAMP3_Init(void);
+void MX_OPAMP4_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 

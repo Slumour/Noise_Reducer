@@ -67,6 +67,7 @@ typedef struct {
     uint8_t test_idx;    // 寻优测试索引 (0~3)
 } ANC_State_t;
 /* USER CODE END PTD */
+
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define SAMPLE_RATE         100000.0f
@@ -77,10 +78,11 @@ typedef struct {
 
 #define ANC_KP          0.02f
 #define ANC_KI          0.001f
-#define ANC_OUT_LIMIT   1500.0f      // 扩大输出限幅以对抗 LTI 衰减，最大不超过 2047
+#define ANC_OUT_LIMIT   2000.0f      // 扩大输出限幅以对抗 LTI 衰减，最大不超过 2047
 #define ANC_INT_LIMIT   (ANC_OUT_LIMIT / ANC_KI)
 #define TIM5_CLOCK_HZ   170000000UL
 /* USER CODE END PD */
+
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
@@ -117,6 +119,7 @@ static ANC_State_t anc = {
     .current_power= 0.0f
 };
 /* USER CODE END PV */
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
@@ -125,6 +128,7 @@ static void ANC_Control_Loop(uint16_t *pADC_Data, uint16_t *pDAC_Data, uint16_t 
 static void update_freq(uint32_t timer_diff);
 static void CORDIC_Config_Cosine(void);
 /* USER CODE END PFP */
+
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
@@ -275,6 +279,7 @@ static void ANC_Control_Loop(uint16_t *pADC_Data, uint16_t *pDAC_Data, uint16_t 
     }
 }
 /* USER CODE END 0 */
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -314,6 +319,7 @@ int main(void)
   MX_COMP1_Init();
   MX_TIM5_Init();
   MX_FMAC_Init();
+  MX_OPAMP4_Init();
   /* USER CODE BEGIN 2 */
 
   CORDIC_Config_Cosine();
@@ -321,7 +327,7 @@ int main(void)
   HAL_OPAMP_Start(&hopamp2);
   HAL_OPAMP_Start(&hopamp3);
   HAL_COMP_Start(&hcomp1);
-
+    HAL_OPAMP_Start(&hopamp4);
   for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
       dac_buffer[i] = DAC_MID_VALUE;
   }
@@ -332,6 +338,7 @@ int main(void)
   HAL_TIM_Base_Start(&htim2);
 
   /* USER CODE END 2 */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -419,6 +426,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
     }
 }
 /* USER CODE END 4 */
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
